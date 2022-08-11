@@ -1,0 +1,314 @@
+<!doctype html>
+<html xmls="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" prefix="sec"
+	namespace-uri="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<!-- Bootstrap CSS -->
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+	<style>
+		.navbar {
+			background-color: cornflowerblue;
+			font-family: sans-serif;
+			font-weight: bolder;
+			text-decoration: none;
+		}
+
+		fieldset {
+			border: 2px #af3333 solid;
+			border-radius: 10px;
+			padding: 5px;
+		}
+
+		fieldset>legend {
+			height: 32px;
+			width: 30%;
+			font-family: tahoma;
+			font-size: 18px;
+			padding-left: 10px;
+
+
+		}
+
+		legend {
+			border-bottom: 2px rgb(0, 0, 128) solid;
+			padding-left: 2px;
+
+		}
+
+		.form-label {
+			text-decoration: none;
+			font-weight: bolder;
+
+		}
+
+
+		body {
+			background-color: #fff;
+		}
+
+		#formPessoa {
+			background-color: cornsilk;
+			padding: 5px;
+			border: 1px solid navy;
+		}
+
+		#notfile {
+			font-family: sans-serif;
+			color: darkred;
+			text-decoration: none;
+			font-weight: bolder;
+			font-size: 18px;
+		}
+
+		#notfile:hover {
+			color: red;
+		}
+
+		.btn-secondary:hover {
+			background: black;
+			color: darkgoldenrod;
+			font-weight: bolder;
+
+		}
+
+
+		#paginacao {
+			
+		}
+	</style>
+	<title>Cadastro de Pessoas</title>
+</head>
+
+<body>
+
+
+
+
+	<div class="container">
+
+		<nav class="navbar navbar-light navbar-expand-lg">
+			<div class="container-fluid">
+
+				<div class="collapse navbar-collapse" id="navbarNav">
+					<ul class="navbar-nav">
+						<li class="nav-item">
+							<a class="nav-link active" style="color:#fff" aria-current="page" href="logout">Sair</a>
+						</li>
+
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+
+
+		<br><br>
+		<h1>Cadastro de Pessoa</h1>
+
+		<div th:each="m  : ${msg}">
+			<span th:text="${m}"></span>
+		</div>
+
+
+
+		<form th:action="salvarpessoa" method="POST" th:object="${pessoaobj}" id="formPessoa"
+			enctype="multipart/form-data">
+
+
+			<div class="mb-3 col-md-6">
+				<label for="file" class="form-label">Foto:</label>
+				<input class="form-control" type="file" name="file" id="file">
+
+			</div>
+
+			<div class="mb-3">
+				<label for="id" class="form-label">ID</label>
+				<input type="text" class="form-control" id="id" name="id" readonly="readonly" th:field="*{id}">
+			</div>
+
+			<div sec:authorize="hasAnyRole('ROLE_ADMIN')">
+				<div class="mb-3">
+					<label for="nome" class="form-label">Nome:</label>
+					<input type="text" class="form-control" name="nome" id="nomeuser" placeholder="Informe o seu nome"
+						th:field="*{nome}">
+				</div>
+
+				<div class="col-md-4">
+					<label for="datanascimento" class="form-label">Data Nascimento:</label>
+					<input type="date" id="datanascimento" th:field="*{dataNascimento}" name="dataNascimento"
+						placeholder="Data Nasc.">
+				</div>
+
+
+				<div class="col-md-4">
+					<label for="lblsexo" class="form-label">Sexo:</label>
+					<select id="sexo" class="form-select" th:field="*{sexo}">
+						<option value="" disabled selected>--[SELECIONE]---</option>
+						<option value="MASCULINO" th:text="Masculino">
+						<option value="FEMININO" th:text="Feminino">
+					</select>
+				</div>
+
+
+				<div class="col-md-4">
+					<label for="lblprofissoes" class="form-label">Profissões:</label>
+					<select id="profissao" class="form-select" th:field="*{profissao}">
+						<option th:each="p : ${profissoes}" th:value="${p.id}" th:text="${p.nome}"></option>
+					</select>
+				</div>
+
+				<div class="col-md-4">
+					<label for="lblcargo'" class="form-label">Cargos:</label>
+					<select id="cargo" class="form-select" th:field="*{cargo}">
+						<option th:each="c :${T(com.sboot.model.Cargo).values()}" th:value="${c.valor}"
+							th:text="${c.nome}">
+						</option>
+					</select>
+				</div>
+
+
+
+			</div>
+			<br><br>
+
+			<div class="col-12">
+				<button type="submit" class="btn btn-primary">Salvar</button>
+				<a href="listapessoas" class="btn btn-dark">Listar Pessoas</a>
+				<button type="button" class="btn btn-light"
+					style="background-color:OrangeRed; color:#fff; font-weight: bolder; text-decoration: none ;"
+					onclick="limparForm();">Novo</button>
+			</div>
+		</form>
+	</div>
+
+
+	<br>
+	<div class="container">
+		<fieldset>
+			<legend>Campos de Pesquisa</legend>
+
+			<form action="pesqnome" method="POST" class="row gx-3 gy-2 form-floating" id="frmpesq">
+
+
+
+				<div class="col-sm-3">
+					<input type="text" class="form-control" placeholder="Buscar Nome" name="buscanome"
+						aria-label="Recipient's username" aria-describedby="button-addon2" th:value=${buscanome}>
+				</div>
+
+				<div class="col-sm-3 ms-1">
+					<select class="form-select" name="pesquisasexo" id="pesquisasexo">
+
+						<option value="" selected>--[TODOS OS SEXOS]--</option>
+						<option value="MASCULINO" th:text="Masculino">
+						<option value="FEMININO" th:text="Feminino">
+					</select>
+				</div>
+
+
+
+
+
+
+
+				<div class="col-auto ms-1">
+					<button class="btn btn-secondary" type="submit" id="btnbusca">Buscar</button>
+				</div>
+
+				<div class="col-auto ms-1">
+					<button class="btn btn-success" type="submit"
+						onclick="document.getElementById('frmpesq').method ='get'" id="btnimprimirrel">Imprimir
+						PDF</button>
+				</div>
+			</form>
+
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">Nome</th>
+						<th scope="col">Telefones</th>
+						<th scope="col">Download</th>
+						<th scope="col">Ações</th>
+					</tr>
+				</thead>
+
+
+				<tbody>
+					<tr th:each="pessoa: ${pessoas.content}">
+						<td th:text="${pessoa.id}"></td>
+						<td th:text="${pessoa.nome}"></td>
+						<td><a th:href="@{/telefonesuser/{idp}(idp=${pessoa.id})}" class="btn btn-warning">Telefones</a>
+						</td>
+
+						<td>
+							<a class="btn btn-secondary" th:if="${pessoa.foto !=null}"
+								th:href="@{/download/{idpessoa}(idpessoa=${pessoa.id})}">Download Imagem</a>
+							<a id="notfile" th:if="${pessoa.foto == null}">Não Possui arquivo</a>
+						</td>
+
+						<td><a th:href="@{/editarpessoa/{idpessoa}(idpessoa=${pessoa.id})}"
+								class="btn btn-success">Editar</a>
+							<a th:href="@{/excluirpessoa/{idpessoa}(idpessoa=${pessoa.id})}"
+								class="btn btn-danger">Excluir</a>
+						</td>
+
+					</tr>
+				</tbody>
+
+			</table>
+
+
+
+			<div id="paginacao">
+				<center>
+					<span th:if="${pessoas.hasPrevious()}" >
+						<a th:href="@{/pessoaspag(page=${pessoas.number-1}, size=${pessoas.size}, buscanome=${buscanome})}"> Anterior </a>
+					</span>
+				
+					<th:block th:each="i: ${#numbers.sequence(0, pessoas.totalPages - 1)}">
+						<a th:href="@{/pessoaspag(page=${i}, size=${pessoas.size}, buscanome=${buscanome})}">[[ ${i} + 1 ]]</a>
+					</th:block>
+
+					<span th:if="${pessoas.hasNext()}" >
+						<a th:href="@{/pessoaspag(page=${pessoas.number+1}, size=${pessoas.size}, buscanome=${buscanome})}"> Próximo </a>
+					</span>
+
+				</center>
+
+			</div>
+
+
+		</fieldset>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+	<script type="text/javascript">
+
+		function limparForm() {
+			var campos = document.getElementById('formPessoa').elements;
+			for (var c = 0; c < campos.length; c++) {
+				campos[c].value = '';
+			}
+
+			window.location.href = "/cadpessoa";
+		}
+
+
+	</script>
+
+
+
+
+
+</body>
+
+</html>
